@@ -1,0 +1,6 @@
+classify_dogs_env
+__pycache__
+dogImages
+lfw
+.vscode
+.git
