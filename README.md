@@ -50,4 +50,7 @@ In building our classifier we will be following below steps:
 - For [Domain Knowlegde](http://cs231n.stanford.edu/reports/2015/pdfs/fcdh_FinalReport.pdf)
 - For [BenchMark Models](https://www.ijrte.org/wp-content/uploads/papers/v7i5s4/E10900275S419.pdf)
 
+### **Reviews & Validations**
+- From [Udacity](https://github.com/mehtajinesh/Classify-Dog-Breeds-using-CNNs/edit/master/review.pdf)
+
 
