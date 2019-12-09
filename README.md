@@ -1,0 +1,2 @@
+# Classify-Dog-Breeds-using-CNNs
+The aim of this project is to create a dog breed identification application using CNNs. The resulting algorithm could be used as part of a mobile or web app. This design can be applied to image classification problem. The code will accept any user-supplied image as input. If a dog is detected in the image, it will provide an estimate of the dog's breed. If a human is detected, it will provide an estimate of the dog breed that is most resembling.
