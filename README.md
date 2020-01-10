@@ -1,6 +1,30 @@
 # Classify-Dog-Breeds-using-CNNs
 <<<<<<< HEAD
 
+## Getting Started
+
+To get started you will need to follow the step mentioned below :
+
+### Working with this repository
+
+To simply clone this repository, run this command in your terminal.
+```git
+git clone https://github.com/mehtajinesh/Classify-Dog-Breeds-using-CNNs.git
+```
+
+## Prerequisites
+
+- Development Environment : Python3
+- Please install the required packages using 
+  ``` pip install -r requirements.txt `
+
+## Authors
+- **Jinesh Mehta ** - *Developer*
+
+## License
+
+This project is licensed under the Honeywell License - see the [LICENSE.md](LICENSE.md) file for details
+
 ### **Domain Background**
 
 Convolutional neural networks (CNN) have been used to great effect in applications such as object classification, scene recognition, and  their applications. In many situations, we can imagine the features (both low-level and higher-level) that are learned by the CNNs in the process of training. However, when the objects the CNNs are trying to categorize share many similar features, such as the breeds of dogs, it becomes hard to imagine the specific features that CNNs must learn in order to categorize these dogs correctly. This is especially  true if we take a look at sets of images such as Fig. 1 below, where the 3 dogs share almost all the same visible features, but belong to different classes. It is therefore interesting to see how well CNNs can perform on only dog breeds, compared to labels from all classes of
@@ -53,6 +77,14 @@ In building our classifier we will be following below steps:
 
 ### **Reviews & Validations**
 - From [Udacity](https://github.com/mehtajinesh/Classify-Dog-Breeds-using-CNNs/blob/master/review.pdf)
+
+Note :
+
+If you're using Windows Server 2008 R2 then there is an x64 and x86 version of PowerShell both of which have to have their execution policies set. Did you set the execution policy on both hosts?
+
+As an Administrator, you can set the execution policy by typing this into your PowerShell window:
+
+```Set-ExecutionPolicy RemoteSigned```
 
 
 =======

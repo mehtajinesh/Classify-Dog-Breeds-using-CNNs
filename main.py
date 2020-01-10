@@ -252,7 +252,115 @@ def train(n_epochs, loaders, model, optimizer, criterion, use_cuda, save_path):
     # return trained model
     return model
 
+def test(loaders, model, criterion, use_cuda):
+    """ prints the accuracy of the trained model
+        on test data
+    """
+    # monitor test loss and accuracy
+    test_loss = 0.
+    correct = 0.
+    total = 0.
+
+    model.eval()
+    for batch_idx, (data, target) in enumerate(loaders['test']):
+        # move to GPU
+        if use_cuda:
+            data, target = data.cuda(), target.cuda()
+        # forward pass: compute predicted outputs by passing inputs to the model
+        output = model(data)
+        # calculate the loss
+        loss = criterion(output, target)
+        # update average test loss 
+        test_loss = test_loss + ((1 / (batch_idx + 1)) * (loss.data - test_loss))
+        # convert output probabilities to predicted class
+        pred = output.data.max(1, keepdim=True)[1]
+        # compare predictions to true label
+        correct += np.sum(np.squeeze(pred.eq(target.data.view_as(pred))).cpu().numpy())
+        total += data.size(0)
+            
+    print('Test Loss: {:.6f}\n'.format(test_loss))
+
+    print('\nTest Accuracy: %2d%% (%2d/%2d)' % (
+        100. * correct / total, correct, total))
+
+def process_image(image):
+    ''' Scales, crops, and normalizes a PIL image for a PyTorch model,
+        returns an Numpy array
+    '''
+    # scale
+    scale_size = 256,256
+    image.thumbnail(scale_size, Image.LANCZOS)
+    # crop
+    crop_size = 224
+    width, height = image.size   # Get dimensions
+    left = (width - crop_size)/2
+    top = (height - crop_size)/2
+    right = (width + crop_size)/2
+    bottom = (height + crop_size)/2
+    
+    image = image.crop((left, top, right, bottom))
+    
+    # normalize
+    mean = np.array([0.485, 0.456, 0.406])
+    std = np.array([0.229, 0.224, 0.225])
+    image_array = np.array(image) / 255
+    
+    image = (image_array - mean) / std
+    # reorder dimensions
+    image = image.transpose((2,0,1))
+    return torch.from_numpy(image)
+
+def predict_breed_transfer(img_path, model_transfer, class_names):
+    ''' function that loads the given image and return the predicted breed
+    '''
+    # open image
+    image = Image.open(img_path)
+    image = process_image(image)
+    image = image.unsqueeze_(0)
+    if use_cuda:
+        image = image.cuda().float()
+    
+    model_transfer.eval()
+    
+    with torch.no_grad():
+        output = model_transfer(image)
+        # convert output probabilities to predicted class
+        pred = output.data.max(1, keepdim=True)[1]
+    
+    return class_names[pred]
+
+def run_app(img_path, image_datasets):
+    '''
+    function that accepts a file path to an image and first determines whether the image contains a human, dog, or neither. Then,
+
+    if a dog is detected in the image, return the predicted breed.
+    if a human is detected in the image, return the resembling dog breed.
+    if neither is detected in the image, provide output that indicates an error.
+    '''
+    ## handle cases for a human face, dog, and neither
+    is_dog = False
+    if dog_detector(img_path):
+        is_dog = True
+        title = 'Cute doggie!'
+    elif face_detector(img_path):
+        title = "Hello, Budddy!"
+    else:
+        title = "Hello, Whatever!"
+    class_names = [item[4:].replace("_", " ") for item in image_datasets['train'].classes]
+    breed = predict_breed_transfer(img_path, model_transfer, class_names)
+    if is_dog:
+        sub_title = f'You are a {breed}, aren\'t you?!?'
+    else:
+        sub_title = f'You look like a...{breed}. Hmm, weird!!!'
+    image = Image.open(img_path)
+    plt.imshow(image, interpolation='nearest')
+    plt.axis('off')
+    plt.title(f'{title}\n{sub_title}')
+    plt.show()
+    plt.close()
+    
 if __name__ == "__main__":
+    print("Cuda Available:{}".format(use_cuda))
     '''
     run this module if the call comes from main
     (avoids getting called when used for importing)
@@ -308,13 +416,62 @@ if __name__ == "__main__":
     print("Adam Optimizer selected.") 
     # train the model
     print("Training started...") 
-    model_scratch = train(50, loaders_scratch, model_scratch, optimizer_scratch, criterion_scratch, use_cuda, 'model_scratch.pt')
+    #model_scratch = train(50, loaders_scratch, model_scratch, optimizer_scratch, criterion_scratch, use_cuda, 'model_scratch.pt')
     print("Training completed.") 
     # load the model that got the best validation accuracy
     model_scratch.load_state_dict(torch.load('model_scratch.pt'))
     print("Best model loaded.") 
+    '''trying out trained model on the test dataset of dog images by calling test function
+    '''    
+    test(loaders_scratch, model_scratch, criterion_scratch, use_cuda)
+    '''
+    Due to poor accuracy, trying transfer learning to create a CNN that can identify dog breed from images.
+    '''
+    '''
+    using same data loaders from the stage when created a CNN from scratch
+    '''
+    loaders_transfer = loaders_scratch
+    model_transfer = models.vgg16(pretrained=True)
+
+    # Freeze parameters so we don't backprop through them
+    for param in model_transfer.parameters():
+        param.requires_grad = False
+
+    classifier = nn.Sequential(
+        nn.Linear(25088, 1024),
+        nn.ReLU(inplace=True),
+        nn.Dropout(p=0.4),
+        nn.Linear(1024, 133),
+        nn.LogSoftmax(dim=1)
+    )
+
+    model_transfer.classifier = classifier 
+
+    if use_cuda:
+        model_transfer = model_transfer.cuda()
+    criterion_transfer = nn.CrossEntropyLoss()
+    optimizer_transfer = torch.optim.Adam(model_transfer.classifier.parameters())
     
-
-
-
-
+    # train the model
+    model_transfer = train(10, loaders_transfer, model_transfer, optimizer_transfer, criterion_transfer, use_cuda, 'model_transfer.pt')
+    
+    # load the model that got the best validation accuracy (uncomment the line below)
+    model_transfer.load_state_dict(torch.load('model_transfer.pt'))
+    
+    test(loaders_transfer, model_transfer, criterion_transfer, use_cuda)
+    
+    '''
+    test newly trained model using transfer learning on
+    test data
+    '''
+    images = [
+    'images/test/dog_affenpinscher.jpg',
+    'images/test/Leonardo_Dicaprio.jpg',
+    'images/test/Basenji.jpg',
+    'images/test/ocicat.jpg',
+    'images/test/savannah.jpg',
+    'images/test/tom_cruise.jpg'
+    ]
+    
+    for file in images:
+        run_app(file, loaders_scratch)
