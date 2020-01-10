@@ -1,6 +1,5 @@
 # Classify-Dog-Breeds-using-CNNs
-<<<<<<< HEAD
-
+The aim of this project is to create a dog breed identification application using CNNs. The resulting algorithm could be used as part of a mobile or web app. This design can be applied to image classification problem. The code will accept any user-supplied image as input. If a dog is detected in the image, it will provide an estimate of the dog's breed. If a human is detected, it will provide an estimate of the dog breed that is most resembling.
 ## Getting Started
 
 To get started you will need to follow the step mentioned below :
@@ -85,8 +84,3 @@ If you're using Windows Server 2008 R2 then there is an x64 and x86 version of P
 As an Administrator, you can set the execution policy by typing this into your PowerShell window:
 
 ```Set-ExecutionPolicy RemoteSigned```
-
-
-=======
-The aim of this project is to create a dog breed identification application using CNNs. The resulting algorithm could be used as part of a mobile or web app. This design can be applied to image classification problem. The code will accept any user-supplied image as input. If a dog is detected in the image, it will provide an estimate of the dog's breed. If a human is detected, it will provide an estimate of the dog breed that is most resembling.
->>>>>>> Initial commit
