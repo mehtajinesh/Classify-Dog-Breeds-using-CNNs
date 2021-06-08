@@ -1,5 +1,5 @@
 opencv-python
 matplotlib
 torchvision
-pillow==6.1
+pillow==8.2.0
 https://download.pytorch.org/whl/cu90/torch-1.1.0-cp37-cp37m-win_amd64.whl
